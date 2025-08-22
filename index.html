@@ -549,12 +549,12 @@
                 <input type="text" id="host" class="form-control" placeholder="http://exemplo.com" value="http://">
             </div>
             <div class="form-group">
-                <label for="threads">Número de Bots (1-100):</label>
-                <input type="number" id="threads" class="form-control" min="1" max="100" value="20">
+                <label for="threads">Número de Bots (1-20):</label>
+                <input type="number" id="threads" class="form-control" min="1" max="20" value="5">
             </div>
             <div class="form-group">
                 <label for="delay">Atraso entre requisições (ms):</label>
-                <input type="number" id="delay" class="form-control" min="50" max="2000" value="200">
+                <input type="number" id="delay" class="form-control" min="100" max="2000" value="500">
             </div>
             <div class="form-group">
                 <label>Fonte dos Combos:</label>
@@ -688,7 +688,6 @@
             remaining: 0
         };
         let history = JSON.parse(localStorage.getItem('scannerHistory')) || [];
-        let abortController = null;
         let userCount = 0;
         let userId = null;
         
@@ -818,7 +817,6 @@
             
             // Configurar eventos para detectar quando o usuário sai
             window.addEventListener('beforeunload', handleUserLeave);
-            window.addEventListener('unload', handleUserLeave);
             
             // Ouvir eventos de storage para detectar outros usuários
             window.addEventListener('storage', handleStorageChange);
@@ -904,13 +902,13 @@
                 return;
             }
             
-            if (threads < 1 || threads > 100) {
-                showNotification('O número de bots deve estar entre 1 e 100!', 'error');
+            if (threads < 1 || threads > 20) {
+                showNotification('O número de bots deve estar entre 1 e 20!', 'error');
                 return;
             }
             
-            if (delay < 50 || delay > 2000) {
-                showNotification('O atraso deve estar entre 50 e 2000ms!', 'error');
+            if (delay < 100 || delay > 2000) {
+                showNotification('O atraso deve estar entre 100 e 2000ms!', 'error');
                 return;
             }
             
@@ -930,26 +928,27 @@
             resultsContainer.innerHTML = '';
             updateStats();
             
-            abortController = new AbortController();
+            showNotification('Scanner iniciado!', 'success');
             
-            showNotification('Scanner iniciado com ' + threads + ' bots!', 'success');
-            
-            // Criar um pool de threads
-            const threadPool = Array(threads).fill().map(() => processCombo(host, delay));
-            
-            // Processar combos
-            for (const combo of combos) {
+            // Processar combos sequencialmente com controle de taxa
+            for (let i = 0; i < combos.length; i++) {
                 if (!isScanning) break;
                 
-                // Aguardar uma thread ficar disponível
-                await Promise.race(threadPool);
+                const combo = combos[i];
                 
-                // Iniciar uma nova thread com o combo atual
-                processCombo(host, combo, delay);
+                // Processar o combo atual
+                await processCombo(host, combo, delay);
+                
+                // Atualizar progresso
+                stats.remaining = combos.length - (i + 1);
+                updateStats();
+                updateProgress();
+                
+                // Pequena pausa para não travar o navegador
+                if (i % 10 === 0) {
+                    await new Promise(resolve => setTimeout(resolve, 10));
+                }
             }
-            
-            // Aguardar todas as threads terminarem
-            await Promise.all(threadPool);
             
             if (isScanning) {
                 finishScanning();
@@ -957,7 +956,7 @@
         }
         
         // Processar um combo
-        async function processCombo(host, combo = null, delay = 200) {
+        async function processCombo(host, combo, delay) {
             if (!isScanning || !combo) return;
             
             try {
@@ -983,10 +982,8 @@
                 console.error('Erro ao processar combo:', error);
             } finally {
                 stats.total++;
-                stats.remaining--;
                 stats.activeThreads--;
                 updateStats();
-                updateProgress();
                 
                 // Aguardar o tempo de atraso configurado
                 if (isScanning && delay > 0) {
@@ -1058,10 +1055,6 @@
         // Parar scanner
         function stopScanning() {
             isScanning = false;
-            
-            if (abortController) {
-                abortController.abort();
-            }
             
             startBtn.disabled = false;
             stopBtn.disabled = true;
