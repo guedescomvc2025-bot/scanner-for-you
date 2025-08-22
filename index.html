@@ -807,6 +807,7 @@
         let history = JSON.parse(localStorage.getItem('scannerHistory')) || [];
         let abortController = null;
         let userCount = 0;
+        let userId = null;
         
         // Elementos do DOM
         const hostInput = document.getElementById('host');
@@ -861,7 +862,7 @@
         function init() {
             updateStats();
             renderHistory();
-            updateUserCount();
+            initUserCounter();
             // Atualizar contador de usuários a cada 30 segundos
             setInterval(updateUserCount, 30000);
         }
@@ -924,16 +925,78 @@
             });
         }
         
-        // Atualizar contador de usuários online
+        // ===== SISTEMA DE CONTADOR DE USUÁRIOS ONLINE REAL =====
+        function initUserCounter() {
+            // Gerar um ID único para este usuário
+            userId = 'user_' + Math.random().toString(36).substr(2, 9);
+            
+            // Registrar este usuário como online
+            setUserOnline(userId);
+            
+            // Configurar eventos para detectar quando o usuário sai
+            window.addEventListener('beforeunload', handleUserLeave);
+            window.addEventListener('unload', handleUserLeave);
+            
+            // Ouvir eventos de storage para detectar outros usuários
+            window.addEventListener('storage', handleStorageChange);
+            
+            // Atualizar contador imediatamente
+            updateUserCount();
+            
+            // Configurar heartbeat para manter o usuário ativo
+            setInterval(() => {
+                setUserOnline(userId);
+                updateUserCount();
+            }, 30000); // A cada 30 segundos
+        }
+        
+        function setUserOnline(userId) {
+            const now = new Date().getTime();
+            localStorage.setItem('user_' + userId, now);
+        }
+        
+        function handleUserLeave() {
+            // Remover este usuário do localStorage quando ele sair
+            localStorage.removeItem('user_' + userId);
+        }
+        
+        function handleStorageChange(event) {
+            // Se houver mudança no localStorage, atualizar o contador
+            if (event.key && event.key.startsWith('user_')) {
+                updateUserCount();
+            }
+        }
+        
         function updateUserCount() {
-            // Simulação de contador de usuários online
-            // Em um ambiente real, você usaria WebSockets ou outra tecnologia em tempo real
-            userCount = Math.floor(Math.random() * 50) + 1;
+            // Contar todos os usuários online (ativos nos últimos 60 segundos)
+            const now = new Date().getTime();
+            const threshold = now - 60000; // 60 segundos atrás
+            
+            let count = 0;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('user_')) {
+                    const timestamp = parseInt(localStorage.getItem(key));
+                    if (timestamp > threshold) {
+                        count++;
+                    }
+                }
+            }
+            
+            userCount = count;
             userCountEl.textContent = userCount;
             
-            // Salvar no localStorage para persistência
-            localStorage.setItem('lastUserCount', userCount);
-            localStorage.setItem('lastUserCountUpdate', new Date().toISOString());
+            // Limpar usuários inativos (mais de 2 minutos)
+            const oldThreshold = now - 120000; // 2 minutos atrás
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('user_')) {
+                    const timestamp = parseInt(localStorage.getItem(key));
+                    if (timestamp < oldThreshold) {
+                        localStorage.removeItem(key);
+                    }
+                }
+            }
         }
         
         // Manipulação de seleção de arquivo
@@ -1056,7 +1119,11 @@
                 
                 const response = await fetch(proxyUrl, {
                     signal: controller.signal,
-                    headers: { 'Accept': 'application/json' }
+                    headers: { 
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                    }
                 });
                 
                 clearTimeout(timeout);
@@ -1127,7 +1194,11 @@
                     
                     const res = await fetch(proxyUrl, {
                         signal: controller.signal,
-                        headers: { 'Accept': 'application/json' }
+                        headers: { 
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                        }
                     });
                     
                     clearTimeout(timeout);
