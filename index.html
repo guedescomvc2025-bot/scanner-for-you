@@ -549,12 +549,12 @@
                 <input type="text" id="host" class="form-control" placeholder="http://exemplo.com" value="http://">
             </div>
             <div class="form-group">
-                <label for="threads">Número de Threads:</label>
-                <input type="number" id="threads" class="form-control" min="1" max="10" value="3">
+                <label for="threads">Número de Bots (1-100):</label>
+                <input type="number" id="threads" class="form-control" min="1" max="100" value="20">
             </div>
             <div class="form-group">
                 <label for="delay">Atraso entre requisições (ms):</label>
-                <input type="number" id="delay" class="form-control" min="500" max="5000" value="1500">
+                <input type="number" id="delay" class="form-control" min="50" max="2000" value="200">
             </div>
             <div class="form-group">
                 <label>Fonte dos Combos:</label>
@@ -904,13 +904,13 @@
                 return;
             }
             
-            if (threads < 1 || threads > 10) {
-                showNotification('O número de threads deve estar entre 1 e 10!', 'error');
+            if (threads < 1 || threads > 100) {
+                showNotification('O número de bots deve estar entre 1 e 100!', 'error');
                 return;
             }
             
-            if (delay < 500 || delay > 5000) {
-                showNotification('O atraso deve estar entre 500 e 5000ms!', 'error');
+            if (delay < 50 || delay > 2000) {
+                showNotification('O atraso deve estar entre 50 e 2000ms!', 'error');
                 return;
             }
             
@@ -932,22 +932,24 @@
             
             abortController = new AbortController();
             
-            showNotification('Scanner iniciado!', 'success');
+            showNotification('Scanner iniciado com ' + threads + ' bots!', 'success');
             
-            // Processar combos sequencialmente com controle de taxa
-            for (let i = 0; i < combos.length; i++) {
+            // Criar um pool de threads
+            const threadPool = Array(threads).fill().map(() => processCombo(host, delay));
+            
+            // Processar combos
+            for (const combo of combos) {
                 if (!isScanning) break;
                 
-                const combo = combos[i];
+                // Aguardar uma thread ficar disponível
+                await Promise.race(threadPool);
                 
-                // Processar o combo atual
-                await processCombo(host, combo, delay);
-                
-                // Atualizar progresso
-                stats.remaining = combos.length - (i + 1);
-                updateStats();
-                updateProgress();
+                // Iniciar uma nova thread com o combo atual
+                processCombo(host, combo, delay);
             }
+            
+            // Aguardar todas as threads terminarem
+            await Promise.all(threadPool);
             
             if (isScanning) {
                 finishScanning();
@@ -955,7 +957,7 @@
         }
         
         // Processar um combo
-        async function processCombo(host, combo, delay) {
+        async function processCombo(host, combo = null, delay = 200) {
             if (!isScanning || !combo) return;
             
             try {
@@ -981,8 +983,10 @@
                 console.error('Erro ao processar combo:', error);
             } finally {
                 stats.total++;
+                stats.remaining--;
                 stats.activeThreads--;
                 updateStats();
+                updateProgress();
                 
                 // Aguardar o tempo de atraso configurado
                 if (isScanning && delay > 0) {
