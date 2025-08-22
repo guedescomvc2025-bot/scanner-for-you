@@ -18,15 +18,14 @@ module.exports = async (req, res) => {
     const response = await fetch(targetUrl, {
       method: req.method,
       headers: {
-        // Passar os cabeçalhos necessários, mas removendo alguns que podem causar problemas
-        'Accept': req.headers['accept'] || 'application/json',
-        'User-Agent': req.headers['user-agent'] || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Referer': req.headers['referer'] || '',
-        'Origin': req.headers['origin'] || '',
-        // Se houver outros cabeçalhos que queira passar, adicione aqui
+        'Accept': 'application/json, text/plain, */*',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       },
-      // Se for POST, passar o body
-      body: req.method === 'POST' ? JSON.stringify(req.body) : undefined,
+      timeout: 15000 // 15 segundos de timeout
     });
 
     // Obter os dados da resposta
