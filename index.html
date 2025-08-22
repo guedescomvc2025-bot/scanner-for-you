@@ -186,42 +186,6 @@
         .theme-dark {
             background-color: #121212;
         }
-        /* Contador de usuários */
-        .user-counter {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            color: var(--tertiary-color);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            z-index: 10;
-        }
-        .user-counter i {
-            color: var(--success-color);
-        }
-        /* Área de propaganda */
-        .ad-container {
-            width: 100%;
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: var(--border-radius);
-            padding: 15px;
-            margin-bottom: 20px;
-            text-align: center;
-            border: 1px dashed rgba(255, 255, 255, 0.2);
-            min-height: 100px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .ad-placeholder {
-            color: var(--tertiary-color);
-            font-style: italic;
-        }
         /* Formulário */
         .form-section {
             background-color: rgba(0, 0, 0, 0.2);
@@ -312,6 +276,7 @@
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
             transition: left 0.5s;
+            animation: shimmer 1.5s infinite;
         }
         .btn:hover::before {
             left: 100%;
@@ -627,6 +592,38 @@
             from { width: 0; }
             to { width: 100%; }
         }
+        /* Área de propaganda */
+        .ad-container {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        .ad-container iframe {
+            max-width: 100%;
+            border: none;
+            border-radius: var(--border-radius);
+        }
+        /* Contador de usuários */
+        .user-counter {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: var(--surface-color);
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .user-counter i {
+            color: var(--primary-color);
+        }
     </style>
 </head>
 <body data-theme="psych">
@@ -658,9 +655,12 @@
             <p class="subtitle">Scanner IPTV Avançado</p>
         </div>
         
-        <!-- Área de propaganda -->
-        <div class="ad-container" id="adContainer">
-            <div class="ad-placeholder">Espaço reservado para propaganda</div>
+        <!-- Área de propaganda (substitua pelo seu código de propaganda) -->
+        <div class="ad-container">
+            <!-- INSIRA SEU CÓDIGO DE PROPAGANDA AQUI -->
+            <div id="ad-content">
+                <p>Espaço para propaganda - Insira seu código aqui</p>
+            </div>
         </div>
         
         <!-- Formulário -->
@@ -800,13 +800,7 @@
         };
         let history = JSON.parse(localStorage.getItem('scannerHistory')) || [];
         let abortController = null;
-        
-        // Configuração de propaganda (INSIRA SEU CÓDIGO DE PROPAGANDA AQUI)
-        const adCode = `
-            <!-- Insira seu código de propaganda aqui -->
-            <!-- Exemplo: <script src="https://exemplo.com/anuncio.js"></script> -->
-            <!-- Exemplo: <img src="https://exemplo.com/banner.jpg" alt="Propaganda"> -->
-        `;
+        let userCount = 0;
         
         // Elementos do DOM
         const hostInput = document.getElementById('host');
@@ -837,9 +831,8 @@
         const modalConfirmBtn = document.getElementById('modalConfirmBtn');
         const notification = document.getElementById('notification');
         const notificationSound = document.getElementById('notificationSound');
-        const userCountEl = document.getElementById('userCount');
-        const adContainer = document.getElementById('adContainer');
         const themeButtons = document.querySelectorAll('.theme-btn');
+        const userCountEl = document.getElementById('userCount');
         
         // Event listeners
         comboFileInput.addEventListener('change', handleFileSelect);
@@ -860,26 +853,21 @@
         function init() {
             updateStats();
             renderHistory();
-            loadUserCount();
-            loadAdvertisement();
+            updateUserCount();
+            
+            // Atualizar contador de usuários a cada 30 segundos
+            setInterval(updateUserCount, 30000);
         }
         
-        // Carregar contador de usuários
-        async function loadUserCount() {
+        // Atualizar contador de usuários
+        async function updateUserCount() {
             try {
                 const response = await fetch('/api/user-count');
                 const data = await response.json();
-                userCountEl.textContent = data.count;
+                userCount = data.count;
+                userCountEl.textContent = userCount;
             } catch (error) {
-                console.error('Erro ao carregar contador de usuários:', error);
-                userCountEl.textContent = '0';
-            }
-        }
-        
-        // Carregar propaganda
-        function loadAdvertisement() {
-            if (adCode.trim() !== '') {
-                adContainer.innerHTML = adCode;
+                console.error('Erro ao atualizar contador de usuários:', error);
             }
         }
         
